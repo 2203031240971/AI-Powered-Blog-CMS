@@ -1,0 +1,63 @@
+name: React Frontend CI/CD
+
+on:
+  push:
+    branches: [ main, develop ]
+    paths:
+      - 'frontend/**'
+  pull_request:
+    branches: [ main, develop ]
+    paths:
+      - 'frontend/**'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Set up Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'
+    
+    - name: Install dependencies
+      working-directory: ./frontend
+      run: npm ci
+    
+    - name: Build
+      working-directory: ./frontend
+      run: npm run build
+    
+    - name: Upload artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: frontend-build
+        path: frontend/build/
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Download artifacts
+      uses: actions/download-artifact@v3
+      with:
+        name: frontend-build
+        path: ./build
+    
+    - name: Deploy to AWS EC2
+      env:
+        DEPLOY_KEY: ${{ secrets.DEPLOY_KEY }}
+        DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
+        DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
+      run: |
+        mkdir -p ~/.ssh
+        echo "$DEPLOY_KEY" > ~/.ssh/deploy_key
+        chmod 600 ~/.ssh/deploy_key
+        ssh-keyscan -H $DEPLOY_HOST >> ~/.ssh/known_hosts
+        scp -i ~/.ssh/deploy_key -r ./build/* $DEPLOY_USER@$DEPLOY_HOST:/var/www/blog-cms/
