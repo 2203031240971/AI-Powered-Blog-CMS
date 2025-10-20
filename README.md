@@ -922,16 +922,6 @@ Special thanks to:
 
 ---
 
-## 🔗 **Useful Links**
-
-- [Live Demo](https://your-demo-url.com) *(Coming Soon)*
-- [Documentation](https://docs.your-project.com)
-- [API Reference](API_DOCUMENTATION.md)
-- [Issue Tracker](https://github.com/yourusername/ai-blog-cms/issues)
-- [Discussions](https://github.com/yourusername/ai-blog-cms/discussions)
-
----
-
 <div align="center">
 
 **⭐ Star this repo if you find it helpful!**
